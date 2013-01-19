@@ -1,0 +1,19 @@
+   static void countfile (String filename, Scanner scan, counts total) {
+   counts count = new counts();
+      if (scan != null) {
+         while (scan.hasNextLine()) {
+            String line = scan.nextLine();
+            ++count.linecount;
+            
+            int numCharsInLine = line.length();
+            count.charcount += numCharsInLine;
+            
+            String[] numWords = line.split ("\\s+");
+            count.wordcount += numWords.length;
+
+         }
+      }
+      out.printf ("%7d %s%n", count.linecount, filename);
+      out.printf ("%7d %s%n", count.charcount, filename);
+      out.printf ("%7d %s%n", count.wordcount, filename);
+   }
