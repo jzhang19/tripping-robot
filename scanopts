@@ -1,0 +1,40 @@
+public class test {
+
+   public static void oneOrMore() {
+      System.out.println("one or more args");
+   }
+
+   public static void main(String[] args) {
+
+      if (args.length > 0) {
+        oneOrMore();
+        }
+      if (args.length < 1 ) {
+              System.out.println("no items");
+        return;
+        }
+
+
+
+   String args0 = args[0];
+
+      if (args0.startsWith("-")) {
+        for (int i=1; i < args[0].length(); i++) {
+           switch (args[0].charAt(i)) {
+              case 'l' : System.out.println("l has gone through");
+                 break;
+
+              case 'w' : System.out.println("w has gone through");
+                 break;
+
+              case 'c' : System.out.println("c has gone through");
+                 break;
+                }
+
+          }
+
+      }
+}
+
+
+}
