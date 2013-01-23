@@ -1,0 +1,229 @@
+// $Id: wordct.java,v 1.187 2013-01-22 17:12:21-08 - - $
+//
+// NAME
+//    wordct - count lines, words, characters in files
+//
+// SYNOPSIS
+//    wordct [-lwc] [filename...]
+//
+// DESCRIPTION
+//    The wordct utility reads one or more input files, and by default,
+//    writes out the number of lines, words, and bytes contained in the
+//    input files to stdout.  If more than one input file is specified,
+//    the total count for all of the files is also written.  If more
+//    than one input file is specified, the total count for all of the
+//    files is also written to stdout.
+//
+// NOTES
+//    This program assumes text files.
+//
+// Name: Alex Bardales
+// User: abardale
+// Host: 
+//
+//
+
+
+import java.io.*;
+import java.util.Scanner;
+import static java.lang.System.*;
+import java.util.ArrayList;
+
+class wordct {
+   static final String STDIN_NAME = "";
+   static String format = "";
+   static ArrayList<counts> arrayList = new ArrayList<counts>();
+   static int flag = 0;
+//   static int errorFlag = 0;
+
+   // Inner convenience class for counting entities.
+   static class counts {
+      int linecount;
+      int wordcount;
+      int charcount;
+      String filename;
+   }
+
+   static class options {
+      boolean countlines = true;
+      boolean countwords = true;
+      boolean countchars = true;
+   }
+
+   //
+   // NAME
+   //    countfile (Scanner)
+   //
+   // DESCRIPTION
+   //    Creates a BufferedReader wrapper around the given 
+   //    InputStreamReader and copies the file to standard output.
+   //
+
+
+   static void countfile (String[] args, String filename, 
+                          Scanner scan, counts total) {
+   counts count = new counts();
+      if (scan != null) {
+         while (scan.hasNextLine()) {
+            String line = scan.nextLine();
+            ++count.linecount;
+
+            int numCharsInLine = line.length();
+            count.charcount += numCharsInLine + 1;
+
+            line = line.trim();          
+            if (line.isEmpty()==false) {
+               String[] numWords = line.split ("\\s+");
+               count.wordcount += numWords.length;
+            }
+        }
+        total.linecount += count.linecount;
+        total.wordcount += count.wordcount;
+        total.charcount += count.charcount;
+      }
+
+      if (args.length < 1) {
+           format = "%8d";
+         } else if (args.length == 1 && args[0].startsWith("-") )  {
+             format = "%8d";
+         } else {
+            String largest = total.charcount + "";
+            format = "%" + largest.length() + "d ";
+         }
+         count.filename = filename;
+         arrayList.add(count);
+   }
+
+   //
+   // NAME
+   //    main
+   //
+   // DESCRIPTION
+   //    Main function of the class.  Causes a service function to
+   //    emit the contents of standard input, if no args, and to
+   //    emit each file in turn, if args.
+   //
+   public static void main (String[] args) {
+      counts total = new counts();
+      options opts = new options();
+
+      
+      if (args.length < 1) {
+          
+          countfile (args, STDIN_NAME, new Scanner (System.in), total);
+
+      } else if (args.length == 1 && args[0].startsWith("-")) {
+          scanOptions(opts, args);
+          countfile (args, STDIN_NAME, new Scanner (System.in), total);
+
+      } else {
+
+         scanOptions(opts, args);
+         for (int itor = flag; itor < args.length; ++itor) {
+
+            String filename = args[itor];
+
+            if (filename.equals (STDIN_NAME)) {
+            countfile (args, filename, new Scanner (System.in), total);
+
+            }else {
+
+               try {
+                  Scanner scan = new Scanner (new File (filename));
+                  countfile (args, filename, scan, total);
+                  scan.close();
+               }catch (IOException error) {
+                   misclib.warn (error.getMessage());
+                 countfile (args, filename, null, total);
+
+               }
+            }
+         }
+      }
+      printOutput(arrayList, args, total, opts);
+      exit (misclib.exit_status);
+   }
+
+   // scan for options
+   public static void scanOptions (options opts, String[] args) {
+      if ( args[0].startsWith("-") ) {
+
+         opts.countlines = false;
+         opts.countwords = false;
+         opts.countchars = false;
+ 
+         for (int i=1; i < args[0].length(); i++)  {
+           switch (args[0].charAt(i)) {
+              case 'l' : opts.countlines = true;
+                 break;
+
+              case 'w' : opts.countwords = true;
+                 break;
+                        
+              case 'c' : opts.countchars = true;
+                 break;
+              default : char invalidOption;
+                        invalidOption = args[0].charAt(i);
+
+
+         String error = "invalid option -- \'" + invalidOption + "\'\n";
+                        misclib.die(error);
+                        System.exit(1); 
+             }
+         }
+      flag = 1;  // used to determine the where to begin
+      }          // counting values, i.e. if first character of
+                 // args[0] is "-", flag = 1, else flag = 0
+   }
+
+   //
+   // print out values based on options and
+   // number of arguments
+
+   public static void printOutput(ArrayList<counts> arrayList, 
+                                  String[] args, counts total, 
+                                  options opts) {   
+
+      for (int i = 0; i < arrayList.size(); i++) { 
+         
+         if (opts.countlines == true) {
+            System.out.printf(format, 
+                              arrayList.get(i).linecount);  
+            }  
+         if (opts.countwords == true) {
+            System.out.printf(format, 
+                              arrayList.get(i).wordcount);  
+            }  
+         if (opts.countchars == true) {
+            System.out.printf(format, 
+                              arrayList.get(i).charcount);  
+            }  
+            System.out.print(arrayList.get(i).filename + "\n");  
+         }
+
+
+         int numArgs = args.length;           
+         if (numArgs > 0) {
+            if (args[0].startsWith("-") && args.length > 1) { 
+                   numArgs--;
+                }                                
+
+            if (numArgs > 1 )  {
+               if (opts.countlines == true) {
+                  System.out.printf(format, 
+                                    total.linecount);  
+                  }  
+               if (opts.countwords == true) {
+                  System.out.printf(format, 
+                                    total.wordcount);  
+                  }  
+               if (opts.countchars == true) {
+                  System.out.printf(format, 
+                                    total.charcount);  
+                  }  
+               System.out.print("total\n");  
+            }
+         }           
+   }
+
+}
