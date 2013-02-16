@@ -1,0 +1,128 @@
+
+// This part will implement a binary search tree data structure
+// that will support airport code queries.
+import static java.lang.System.*;
+class treemap 
+{
+// It gets the airport code and the airport name from airport.java
+   class tree 
+   {
+      String key;
+      String value;
+      tree left;
+      tree right;
+      public tree(String key, String value) {
+         this.key = key;
+         this.value = value;
+      }
+   }
+// Initialize the root to null and the string prev to null. 
+// This parts looks up the airport name that is assoicated 
+// with the airport code user types in. It will return the 
+// airport name.
+   tree root = null;
+   String prev = null;
+   public String get (String key) {                            
+      tree curr = root;                                     
+      while(curr != null)                                    
+      {
+         if(curr.key.compareTo(key) == 0)        //If find, return the name           
+         {                                                  
+            return curr.value;                              
+         }                                                  
+         else if(key.compareTo(curr.key) < 0)    //If the code is before the      
+         {                                       //current one, search its left           
+            curr = curr.left;                                
+         }                                               
+         else                                    //Otherwise, search its right
+         {                                                
+            curr = curr.right;
+         }
+      }
+      if(curr == null)                           //If not found, return null
+      {
+         return null;
+      } 
+      else                                       //Otherwise, return the name
+      {
+         return curr.value;
+      }
+   }
+// This put method will create the binary tree.
+// If the root has nothing, set it equal to the airport code
+// and its the airport name. If the root contains the airpot code
+// that is same as the new airport code, push the old one to prev.
+// If not the same, call the method position to find where to place 
+// the new airport code and the airport name.
+   public String put (String key, String value) {
+      if(root == null) 
+      {
+         root = new tree(key, value);
+      }
+      else if(root.key.compareTo(key) == 0) 
+      {
+         prev = root.value;
+         root.value = value;
+      } 
+      else 
+      {
+         prev = position(root, key, value);
+      }
+      return prev;
+   }
+// Finds where to place to new airport code and name in the tree.
+   public String position (tree pos, String key, String value) {
+      if(pos == null)                           //If the position has nothing
+      {                                         //place it there
+         pos = new tree(key, value);
+      }
+      else if(key.compareTo(pos.key) < 0)       //If the airport code is before the current 
+      {
+         if(pos.left == null)                   //and if the left position has nothing
+         {                                      //place it there
+            pos.left = new tree(key, value);
+         }                                      //otherwise, do a recursive call and set
+         else {                                 //the current postion to the left
+            position(pos.left, key, value);
+         }
+      }
+      else if(key.compareTo(pos.key) > 0)       //If the airport code is after the current 
+      {
+         if(pos.right == null)                  //and if the right position has nothing
+         {                                      //place it there
+            pos.right = new tree(key, value);
+         } 
+         else                                   //otherwise, do a recursive call and set
+         {                                      //the current postion to the right
+            position(pos.right, key, value);
+         }
+      }
+      else if(key.compareTo(pos.key) == 0)     //If the current one is same is the new one
+      {
+         prev = pos.value;                     //Push the old one to prev
+         pos.value = value;
+      }
+      return prev;                             //Return prev
+   }
+   public void debug_tree () {
+      debug_tree_recur (root, 0);
+   }
+// This is a depth-first in-order traversal call in order to print out each tree in the binary tree
+   private void debug_tree_recur (tree node, int depth) {
+      if(node != null) 
+      {
+         if(node.left != null) 
+         {
+            debug_tree_recur (node.left, depth + 1);
+         }
+         System.out.print(String.format("%3d \"%s\" \"%s\" %s %s%n",
+                                depth, node.key, node.value, node.left,
+                                node.right));
+         //System.out.print(String.format("%s %s %n", node.key, node.value));
+         if(node.right != null) 
+         {
+            debug_tree_recur (node.right, depth + 1);
+         }
+      }
+   }
+}
