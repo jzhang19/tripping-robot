@@ -1,0 +1,113 @@
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <libgen.h>
+#include <unistd.h>
+char *program_name = NULL;
+int exit_status = EXIT_SUCCESS;
+
+typedef struct node node;
+struct options {
+   bool debug_mode;
+};
+
+
+void scan_options (int argc, char **argv, struct options *opts) {
+   opts->debug_mode = false;
+   opterr = false;
+   for (;;) {
+      int opt = getopt (argc, argv, "d");
+      if (opt == EOF) break;
+      switch (opt)
+      {
+         case 'd':
+            opts->debug_mode = true;
+            printf("1");
+            break;
+         default: 
+            printf("2");
+            exit_status = EXIT_FAILURE;
+            fflush (NULL);
+            fprintf (stderr, "%s: -%c: invalid option\n",
+                             program_name, optopt);
+            break;
+      }
+   }
+}
+
+int main (int argc, char **argv)
+{
+   struct options opts;
+   program_name = basename (argv[0]);
+   scan_options (argc, argv, &opts);
+   if (argv[optind]!=NULL)
+   {
+       printf ("%s\n", "Usage: nsort [-d]");
+    
+       return EXIT_FAILURE;
+   }
+   for (;;)
+   {
+      double num;
+      int rc = scanf ("%lg", &num);
+      if (rc != 1) break;
+      printf("%lg",num);
+   }
+   return exit_status;
+}
+  /* if (argc == 1) {
+      printf ("%s\n", "Usage: nsort [-d]");
+   }
+   //else {
+   //}   
+   for (;;)
+   {
+      double num;
+      int rc = scanf ("%lg", &num);
+      if (rc != 1) break;
+      printf("%lg",num);
+   }
+   return exit_status;
+}
+
+
+node *head = NULL;
+struct node {
+   double item;
+   node *link;
+};
+int main (int argc, char **argv) {
+   double sum = 0.0;
+   for (;;) {
+      double num;
+      int rc = scanf ("%lg", &num);
+      if (rc != 1) break;
+      sum += num;
+   }
+   printf ("%.10g\n", sum);
+   return EXIT_SUCCESS;
+}
+
+int main (int argc, char **argv) {
+   int sum = 0;
+   for (int i = 1; i < argc; ++i) sum += atoi (argv[i]);
+   printf ("%d\n", sum);
+   return EXIT_SUCCESS;
+}
+
+
+ public static void main (String[] args) {
+      if (args.length == 1 && !(args[0].startsWith("-"))) {
+         treemap tree = load_database (args[0]);
+         Scanner stdin = new Scanner (in);
+         while (stdin.hasNextLine()) {
+            String airport = stdin.nextLine().toUpperCase().trim();
+            String airport_name = tree.get (airport);
+            if (airport_name == null) {
+               out.printf ("%s: no such airport%n", airport);
+            } else {
+               out.printf ("%s = %s%n", airport, airport_name);
+            }
+         }
+      }*/
